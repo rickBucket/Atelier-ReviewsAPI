@@ -9,7 +9,7 @@ db.once('open', function() {
 
   const metaSchema = new mongoose.Schema({
     product_id: Number,
-    ratings: {
+    average_ratings: {
       "0": Number,
       "1": Number,
       "2": Number,
@@ -84,7 +84,7 @@ db.once('open', function() {
         value: Number
       },
     },
-    photos: [String]
+    photos: [String] // may have an easier way to handle URL input
   });
 
   const Meta = mongoose.model('Meta', metaSchema);
