@@ -4,7 +4,7 @@ CREATE DATABASE IF NOT EXISTS sdc;
 USE sdc;
 
 CREATE TABLE IF NOT EXISTS products (
-  product_id INT UNSIGNED NOT NULL PRIMARY KEY,
+  product_id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   zero INT UNSIGNED NOT NULL DEFAULT 0,
   one INT UNSIGNED NOT NULL DEFAULT 0,
   two INT UNSIGNED NOT NULL DEFAULT 0,
@@ -12,15 +12,15 @@ CREATE TABLE IF NOT EXISTS products (
   four INT UNSIGNED NOT NULL DEFAULT 0,
   five INT UNSIGNED NOT NULL DEFAULT 0,
   recommended INT UNSIGNED NOT NULL DEFAULT 0,
-  review_count INT UNSIGNED NOT NULL DEFAULT 0,
+  review_count INT UNSIGNED NOT NULL DEFAULT 0
 );
 
-CREATE TABLE IF NOT EXIST characteristics (
+CREATE TABLE IF NOT EXISTS characteristics (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   product_id INT UNSIGNED NOT NULL,
   characteristic VARCHAR(16) NOT NULL,
   average_value FLOAT(23) NOT NULL DEFAULT 0,
-  FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE,
+  FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS reviews (
@@ -43,8 +43,8 @@ CREATE TABLE IF NOT EXISTS review_characteristics (
   review_id INT UNSIGNED NOT NULL,
   characteristic_id INT UNSIGNED NOT NULL,
   rating TINYINT UNSIGNED NOT NULL,
-  FOREIGN KEY review_id REFERENCES reviews(review_id) ON DELETE CASCADE,
-  FOREIGN KEY characteristic_id REFERENCES characteristics(id) ON DELETE CASCADE
+  FOREIGN KEY (review_id) REFERENCES reviews(review_id) ON DELETE CASCADE,
+  FOREIGN KEY (characteristic_id) REFERENCES characteristics(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS photos (
@@ -54,3 +54,4 @@ CREATE TABLE IF NOT EXISTS photos (
   FOREIGN KEY (review_id) REFERENCES reviews(review_id) ON DELETE CASCADE
 );
 
+/*  mysql -u root < this file */
