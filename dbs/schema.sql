@@ -27,11 +27,12 @@ CREATE TABLE IF NOT EXISTS reviews (
   review_id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   product_id INT UNSIGNED NOT NULL,
   rating TINYINT UNSIGNED NOT NULL,
-  recommended BOOL NOT NULL,
-  response VARCHAR(120),
+  r_date DATE NOT NULL,
   summary VARCHAR(60) NOT NULL,
   body TEXT(1000) NOT NULL,
-  r_date DATE NOT NULL,
+  recommend BOOL NOT NULL,
+  response VARCHAR(120),
+  reported BOOL NOT NULL,
   reviewer_name VARCHAR(60) NOT NULL,
   reviewer_email VARCHAR(60) NOT NULL,
   helpfulness INT UNSIGNED NOT NULL,
@@ -40,8 +41,8 @@ CREATE TABLE IF NOT EXISTS reviews (
 
 CREATE TABLE IF NOT EXISTS review_characteristics (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  review_id INT UNSIGNED NOT NULL,
   characteristic_id INT UNSIGNED NOT NULL,
+  review_id INT UNSIGNED NOT NULL,
   rating TINYINT UNSIGNED NOT NULL,
   FOREIGN KEY (review_id) REFERENCES reviews(review_id) ON DELETE CASCADE,
   FOREIGN KEY (characteristic_id) REFERENCES characteristics(id) ON DELETE CASCADE
@@ -49,8 +50,8 @@ CREATE TABLE IF NOT EXISTS review_characteristics (
 
 CREATE TABLE IF NOT EXISTS photos (
   photo_id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  url VARCHAR(255),
   review_id INT UNSIGNED NOT NULL,
+  url VARCHAR(255),
   FOREIGN KEY (review_id) REFERENCES reviews(review_id) ON DELETE CASCADE
 );
 
