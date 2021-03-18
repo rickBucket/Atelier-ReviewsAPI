@@ -19,7 +19,7 @@ db.once('open', function() {
     },
     recommended: Number,
     review_count: Number,
-    characteristics: {
+    characteristics: { // Array
       Size: {
         id: Number,
         value: Number
@@ -58,7 +58,7 @@ db.once('open', function() {
     date: Date,
     reviewer_name: String,
     helpfulness: Number,
-    characteristics: {
+    characteristics: { // Array
       Size: {
         id: Number,
         value: Number
