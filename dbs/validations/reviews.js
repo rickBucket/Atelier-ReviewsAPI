@@ -19,7 +19,7 @@ async function checkReviews() {
     if (row.length !== 12) return;
     if (isNaN(row[0])) return;
     if (isNaN(row[1])) return;
-    if (isNaN(row[2]) || row[2] > 5 || row[2] < 0) return;
+    if (isNaN(row[2]) || row[2] > 5 || row[2] < 1) return;
     if (!valiDate(row[3])) return;
     if (row[4].length > 62 || row[4].length < 2) return;
     if (row[4][0] !== '"' || row[4][row[4].length-1] !== '"') return;
@@ -36,6 +36,7 @@ async function checkReviews() {
 }
 
 function valiDate(input) {
+  if (input.includes('/')) console.log("SLASHES");
   input = input.split('"').join('');
   const sections = input.split('-');
   if (sections.length !== 3) return false;
