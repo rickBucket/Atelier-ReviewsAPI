@@ -12,44 +12,47 @@ function getReviews(q, callback) {
   const count = q.count || 5;
   const page = q.page || 1;
 
-  const reviewQuery = `WITH top_reviews AS (
-    SELECT * FROM reviews
-    WHERE product_id = ${q.product_id}
-    ORDER BY ${sort}
-    LIMIT ${count * page}
-  ), review_photos AS (
-    SELECT
-      GROUP_CONCAT(photos.url) AS photo_list,
-      photos.review_id AS extra,
-      GROUP_CONCAT(photos.photo_id) AS photo_ids
-    FROM photos
-      JOIN top_reviews
-      ON photos.review_id = top_reviews.review_id
-    GROUP BY photos.review_id
-  )
-  SELECT *
-  FROM review_photos
-    RIGHT JOIN top_reviews
-    ON review_photos.extra = top_reviews.review_id;`;
+  const reviewQuery = `
+    WITH top_reviews AS (
+      SELECT *
+      FROM reviews
+      WHERE product_id = ${q.product_id}
+      ORDER BY ${sort}
+      LIMIT ${count * page}
+    ), review_photos AS (
+      SELECT
+        GROUP_CONCAT(photos.url) AS photo_list,
+        photos.review_id AS extra,
+        GROUP_CONCAT(photos.photo_id) AS photo_ids
+      FROM photos
+        JOIN top_reviews
+        ON photos.review_id = top_reviews.review_id
+      GROUP BY photos.review_id
+    )
+    SELECT *
+    FROM review_photos
+      RIGHT JOIN top_reviews
+      ON review_photos.extra = top_reviews.review_id;`;
 
   db.connection.query(reviewQuery, (err, result) => {
     if (err) {
       callback(err, null);
     } else {
-      callback(null, formatResult(result, Number(page), Number(count)));
+      callback(null, formatResult(result, Number(page), Number(count), q.product_id));
     }
   });
 }
 
-function formatResult(res, page, count) {
-  let revs = [];
+function formatResult(res, page, count, product) {
+  let results = [];
   const start = count * (page - 1);
   const end = count * page;
 
 
   for (let i = start; i < end; i++) {
-    const photos = [];
     if (!res[i]) break;
+    if (res[i].reported) continue;
+    const photos = [];
     if (typeof res[i].photo_list === 'string') {
       const urls = res[i].photo_list.split(',');
       const p_ids = res[i].photo_ids.split(',');
@@ -77,10 +80,10 @@ function formatResult(res, page, count) {
   }
 
   return {
-    product: res[0].product_id.toString(),
-    page: page,
-    count: count,
-    results: revs
+    product,
+    page,
+    count,
+    results
   };
 }
 

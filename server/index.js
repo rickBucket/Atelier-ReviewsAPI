@@ -1,5 +1,6 @@
 const express = require('express');
 const getReviews = require('./getReviews.js').getReviews;
+const getMeta = require('./getMeta.js').getMeta;
 
 const app = express();
 app.use(express.json());
@@ -17,6 +18,13 @@ app.get('/', (req, res) => {
 
 app.get('/meta', (req, res) => {
   // req.query = { product_id }
+  getMeta(req.query, (err, result) => {
+    if (err) {
+      res.status(404).send(err);
+    } else {
+      res.status(200).send(result);
+    }
+  });
 });
 
 app.post('/', (req, res) => {
