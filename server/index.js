@@ -1,6 +1,7 @@
 const express = require('express');
 const getReviews = require('./getReviews.js').getReviews;
 const getMeta = require('./getMeta.js').getMeta;
+const postReview = require('./postReview.js').postReview;
 
 const app = express();
 app.use(express.json());
@@ -28,7 +29,25 @@ app.get('/meta', (req, res) => {
 });
 
 app.post('/', (req, res) => {
-  // req.body
+  // req.body:
+  // product_id int
+  // rating int
+  // summary text
+  // body text
+  // recommend bool
+  // name text
+  // email text
+
+  // photos [text]
+
+  // characteristics object { id: value }
+  postReview(req.body, (err, result) => {
+    if (err) {
+      res.status(405).send(err);
+    } else {
+      res.status(201).send(result);
+    }
+  })
 });
 
 app.put('/:review_id/helpful', (req, res) => {

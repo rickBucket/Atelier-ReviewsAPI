@@ -22,7 +22,7 @@ function getReviews(q, callback) {
     ), review_photos AS (
       SELECT
         GROUP_CONCAT(photos.url) AS photo_list,
-        photos.review_id AS extra,
+        photos.review_id AS r_id,
         GROUP_CONCAT(photos.photo_id) AS photo_ids
       FROM photos
         JOIN top_reviews
@@ -32,7 +32,7 @@ function getReviews(q, callback) {
     SELECT *
     FROM review_photos
       RIGHT JOIN top_reviews
-      ON review_photos.extra = top_reviews.review_id;`;
+      ON review_photos.r_id = top_reviews.review_id;`;
 
   db.connection.query(reviewQuery, (err, result) => {
     if (err) {
@@ -65,7 +65,7 @@ function formatResult(res, page, count, product) {
       }
     }
 
-    revs.push({
+    results.push({
       review_id: res[i].review_id,
       rating: res[i].rating,
       summary: res[i].summary,

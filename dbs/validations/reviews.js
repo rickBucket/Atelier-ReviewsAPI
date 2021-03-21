@@ -28,7 +28,7 @@ async function checkReviews() {
     if (row[6] != 0 && row[6] != 1 && row[6] !== 'true' && row[6] !== 'false') return;
     if (isNaN(row[7]) && row[7] !== 'true' && row[7] !== 'false') return;
     if (row[8].length > 62) return;
-    if (row[9].length > 62) return;
+    if (row[9].length > 62 || !row[9].includes('@')) return;
     if (row[10].length > 122) return;
     if (isNaN(row[11]) || row[11] < 0) return;
     outstream.write(`${line}\n`);
