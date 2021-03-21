@@ -1,6 +1,19 @@
 const db = require('../dbs/rdb.js');
 
 function getReviews(q, callback) {
+  if (isNaN(q.product_id)) {
+    callback("Invalid product_id", null);
+    return;
+  }
+  if (isNaN(q.page) && q.page !== undefined) {
+    callback("Invalid page", null);
+    return;
+  }
+  if (isNaN(q.count) && q.count !== undefined) {
+    callback("Invalid count", null);
+    return;
+  }
+
   let sort = '';
   if (q.sort === 'newest') {
     sort = 'r_date DESC';

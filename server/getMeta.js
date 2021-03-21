@@ -1,6 +1,11 @@
 const db = require('../dbs/rdb.js');
 
 function getMeta(q, callback) {
+  if (isNaN(q.product_id)) {
+    callback("Invalid product_id", null);
+    return;
+  }
+
   const ratingQuery = `
     SELECT
       reviews.rating,
@@ -100,7 +105,6 @@ function formatData(input, product_id) {
       };
     }
   }
-  console.log(input);
   if (input[2][0].true === null) {
     input[2][0] = {};
   } else {

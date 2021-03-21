@@ -186,7 +186,6 @@ function postReview(data, callback) {
             });
           }
 
-          console.log(charQuery);
           Promise.all([photoPromise, charPromise])
             .then(results => callback(null, results))
             .catch(finalError => callback(finalError, null));
