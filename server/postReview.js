@@ -1,4 +1,4 @@
-const db = require('../dbs/rdb.js');
+const db = require('../dbs/rdb.js').connection;
 
 function validateURL(input) {
   if (input.length > 255) return false;
@@ -23,10 +23,10 @@ function postReview(data, callback) {
     photos,
     characteristics
   } = data;
-  summary = db.connection.escape(summary);
-  body = db.connection.escape(body);
-  name = db.connection.escape(name);
-  email = db.connection.escape(email);
+  summary = db.escape(summary);
+  body = db.escape(body);
+  name = db.escape(name);
+  email = db.escape(email);
 
   // Validate here
   if (isNaN(product_id)) {
@@ -79,50 +79,69 @@ function postReview(data, callback) {
     WHERE product_id = ${product_id};
   `;
 
-  db.connection.query(charCheckQuery, (err, charResult) => {
-    if (err) {
-      callback(err, null);
-    } else {
-      const char_ids = Object.keys(characteristics);
-      if (charResult.length !== char_ids.length) {
-        callback("Invalid characteristic(s)", null);
+  db.getConnection((connectError, connection) => {
+    connection.beginTransaction((transactionError) => {
+      if (transactionError) {
+        connection.rollback(() => {
+          callback(transactionError, null);
+        });
+        return;
       }
-      for (let i = 0; i < charResult.length; i++) {
-        if (!char_ids.includes(charResult[i].id.toString())) {
-          callback("Invalid characteristic(s)", null);
+      connection.query(charCheckQuery, (err, charResult) => {
+        if (err) {
+          connection.rollback(() => {
+            callback(err, null);
+          });
           return;
         }
-      }
-      const reviewQuery = `
-        INSERT INTO reviews (
-          product_id,
-          rating,
-          r_date,
-          summary,
-          body,
-          recommend,
-          reported,
-          reviewer_name,
-          reviewer_email,
-          helpfulness
-        ) VALUES (
-          ${product_id},
-          ${rating},
-          "${new Date().toISOString().slice(0, 19).replace('T', ' ')}",
-          "${summary}",
-          "${body}",
-          ${recommend},
-          ${false},
-          "${name}",
-          "${email}",
-          ${0}
-        );
-      `;
+        const char_ids = Object.keys(characteristics);
+        if (charResult.length !== char_ids.length) {
+          connection.rollback(() => {
+            callback("Invalid characteristic(s)", null);
+          });
+          return;
+        }
+        for (let i = 0; i < charResult.length; i++) {
+          if (!char_ids.includes(charResult[i].id.toString())) {
+            connection.rollback(() => {
+              callback("Invalid characteristic(s)", null);
+            });
+            return;
+          }
+        }
+        const reviewQuery = `
+          INSERT INTO reviews (
+            product_id,
+            rating,
+            r_date,
+            summary,
+            body,
+            recommend,
+            reported,
+            reviewer_name,
+            reviewer_email,
+            helpfulness
+          ) VALUES (
+            ${product_id},
+            ${rating},
+            "${new Date().toISOString().slice(0, 19).replace('T', ' ')}",
+            "${summary}",
+            "${body}",
+            ${recommend},
+            ${false},
+            "${name}",
+            "${email}",
+            ${0}
+          );
+        `;
 
-      db.connection.query(reviewQuery, (err, result) => {
-        if (err) {
-          callback(err, null);
-        } else {
+        connection.query(reviewQuery, (err, result) => {
+          if (err) {
+            connection.rollback(() => {
+              callback(err, null);
+            });
+            return;
+          }
           // result.insertId
           let photoQuery = `
             INSERT INTO photos (
@@ -131,7 +150,9 @@ function postReview(data, callback) {
           ) VALUES `;
           for (let i = 0; i < photos.length; i++) {
             if (!validateURL(photos[i])) {
-              callback("Invalid photo URL(s) supplied", null);
+              connection.rollback(() => {
+                callback("Invalid Photo URL(s)", null);
+              });
               return;
             }
             photoQuery += `(
@@ -165,18 +186,17 @@ function postReview(data, callback) {
           let charPromise;
           if (photos.length) {
             photoPromise = new Promise((resolve, reject) => {
-              db.connection.query(photoQuery, (photoError, photoResults) => {
+              connection.query(photoQuery, (photoError, photoResults) => {
                 if (photoError) {
                   return reject(photoError);
-                } else {
-                  return resolve(photoResults);
                 }
+                return resolve(photoResults);
               });
             });
           }
           if (char_ids.length) {
             charPromise = new Promise((resolve, reject) => {
-              db.connection.query(charQuery, (charError, charResults) => {
+              connection.query(charQuery, (charError, charResults) => {
                 if (charError) {
                   return reject(charError);
                 } else {
@@ -187,12 +207,26 @@ function postReview(data, callback) {
           }
 
           Promise.all([photoPromise, charPromise])
-            .then(results => callback(null, results))
-            .catch(finalError => callback(finalError, null));
-        }
+            .then(results => {
+              connection.commit((err) => {
+                if (err) {
+                  connection.rollback(() => {
+                    callback(err, null);
+                  });
+                }
+                callback(null, results);
+              })
+            })
+            .catch(finalError => {
+              connection.rollback(() => {
+                callback(finalError, null);
+              });
+            })
+        });
       });
-    }
+    });
   });
+
 }
 
 module.exports.postReview = postReview;

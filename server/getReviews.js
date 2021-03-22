@@ -31,7 +31,8 @@ function getReviews(q, callback) {
       FROM reviews
       WHERE product_id = ${q.product_id}
       ORDER BY ${sort}
-      LIMIT ${count * page}
+      LIMIT ${count}
+      OFFSET ${count * (page - 1)}
     ), review_photos AS (
       SELECT
         GROUP_CONCAT(photos.url) AS photo_list,
@@ -58,11 +59,8 @@ function getReviews(q, callback) {
 
 function formatResult(res, page, count, product) {
   let results = [];
-  const start = count * (page - 1);
-  const end = count * page;
 
-
-  for (let i = start; i < end; i++) {
+  for (let i = 0; i < res.length; i++) {
     if (!res[i]) break;
     if (res[i].reported) continue;
     const photos = [];
