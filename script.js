@@ -11,9 +11,11 @@ export let options = {
     error_rate: ['rate < 0.1'],
   },
   stages: [
+    { duration: '1s', target: 100 },
+    { duration: '10s', target: 100 }
     // { duration: '10s', target: 1 },
     // { duration: '10s', target: 10 },
-    { duration: '10s', target: 100 },
+    // { duration: '10s', target: 100 },
     // { duration: '10s', target: 1000 },
   ],
   ext: {
@@ -35,3 +37,4 @@ export default function() {
 
   sleep(1)
 }
+
