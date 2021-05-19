@@ -18,6 +18,15 @@ API serving review data for Atelier retail portal.
 | PUT | /:review_id/helpful | - | - |
 | PUT | /::review_id/report | - | - |
 
+# Constraints
+
+- Sub-millisecond database response times
+- Sub-0.5s response time
+- Under 1% error rate
+
+# Loader.io Results
+
+64ms - 457ms (165ms average) response time at 900 requests per second with 0% error rate.
 
 <img width="924" alt="Screen Shot 2021-05-19 at 2 55 36 PM" src="https://user-images.githubusercontent.com/13191334/118889681-4e2a0c00-b8b2-11eb-945e-e6535d6325c6.png">
 
