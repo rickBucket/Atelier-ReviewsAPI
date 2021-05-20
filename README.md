@@ -3,10 +3,11 @@
 API serving review data for Atelier retail portal.
 
 # Technologies Used
-1. MySQL
-2. Node/Express.js
-3. AWS (EC2 and S3)
-4. Loader.io
+- MySQL
+- Node/Express.js
+- AWS (EC2 and S3)
+- Loader.io
+- K6
 
 # Requests
 
